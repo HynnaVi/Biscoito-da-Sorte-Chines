@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biscoito da Sorte Místico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Inter:wght@300;400;600;700&family=Noto+Serif+SC:wght@500;700;900&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --gold-gradient: linear-gradient(135deg, #FFE082 0%, #FFB300 50%, #FF8F00 100%);
+            --mystic-purple: #130a2a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0617;
+            color: #f3f4f6;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .font-cinzel {
+            font-family: 'Cinzel', serif;
+        }
+
+        .font-chinese {
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .font-fortune {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .mystic-bg {
+            background: radial-gradient(circle at 50% 20%, rgba(93, 44, 150, 0.35) 0%, rgba(19, 10, 42, 0.8) 50%, #080312 100%);
+        }
+
+        .gold-shimmer {
+            background: linear-gradient(90deg, #FDE68A 0%, #F59E0B 50%, #FDE68A 100%);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: shine 4s linear infinite;
+        }
+
+        @keyframes shine {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        /* Cookie Container and Pieces */
+        .cookie-wrapper {
+            position: relative;
+            width: 320px;
+            height: 260px;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .cookie-wrapper:hover:not(.cracked) {
+            transform: scale(1.05);
+        }
+
+        .cookie-wrapper:active:not(.cracked) {
+            transform: scale(0.97);
+        }
+
+        .cookie-part {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s ease;
+            transform-origin: center center;
+            filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.7));
+        }
+
+        /* Crack Animations */
+        .cookie-wrapper.cracked .cookie-left {
+            transform: translate(-95px, 20px) rotate(-34deg);
+        }
+
+        .cookie-wrapper.cracked .cookie-right {
+            transform: translate(95px, 20px) rotate(34deg);
+        }
+
+        /* Fortune Slip Card */
+        .fortune-paper {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(0.1);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 30;
+        }
+
+        .fortune-paper.revealed {
+            transform: translate(-50%, -15%) scale(1);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Custom scrollbar */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 999px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(245, 158, 11, 0.4);
+            border-radius: 999px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(245, 158, 11, 0.7);
+        }
+
+        .glow-halo {
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, rgba(139, 92, 246, 0.15) 50%, transparent 70%);
+            filter: blur(25px);
+            animation: pulse-glow 3.5s ease-in-out infinite alternate;
+            z-index: 0;
+        }
+
+        @keyframes pulse-glow {
+            0% { transform: scale(0.9); opacity: 0.5; }
+            100% { transform: scale(1.25); opacity: 0.9; }
+        }
+
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 15;
+        }
+
+        .fade-transition {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+    </style>
+</head>
+<body class="mystic-bg min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-black">
+    <canvas id="particleCanvas"></canvas>
+
+    <header class="w-full max-w-6xl mx-auto px-4 pt-6 pb-2 flex justify-between items-center z-20">
+        <div class="flex items-center space-x-3">
+            <span class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-violet-600 flex items-center justify-center text-xl shadow-lg shadow-violet-900/50">
+                🥠
+            </span>
+            <div>
+                <h1 class="font-cinzel text-xl sm:text-2xl font-bold tracking-wider gold-shimmer">Oráculo do Destino</h1>
+                <p class="text-xs text-violet-300/70 tracking-widest uppercase">东方智慧 • Sabedoria Ancestral</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button id="toggleAudioBtn" class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-amber-400/40 text-amber-200/90 text-sm flex items-center gap-2 transition backdrop-blur-md" title="Ativar/Desativar Som">
+                <i class="fa-solid fa-volume-high" id="audioIcon"></i>
+                <span class="hidden sm:inline text-xs font-medium" id="audioStatus">Som Ativo</span>
+            </button>
+            <button id="openHistoryBtn" class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-amber-400/40 text-amber-200/90 text-sm flex items-center gap-2 transition backdrop-blur-md relative" title="Ver Histórico">
+                <i class="fa-solid fa-scroll"></i>
+                <span class="hidden sm:inline text-xs font-medium">Histórico</span>
+                <span id="historyBadge" class="hidden absolute -top-1.5 -right-1.5 bg-amber-500 text-black text-[10px] font-bold px-1.5 py-0.2 rounded-full">0</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="w-full max-w-6xl mx-auto px-4 py-4 flex-1 flex flex-col justify-center items-center z-10 relative">
+        <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center my-auto">
+            
+            <!-- Left Column: Ritual Form -->
+            <section class="lg:col-span-5 bg-black/40 backdrop-blur-xl border border-violet-800/30 rounded-3xl p-6 sm:p-7 shadow-2xl relative order-2 lg:order-1 transition duration-300 hover:border-violet-600/40">
+                <div class="absolute -top-3 left-6 px-3 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-violet-600 text-[10px] font-bold uppercase tracking-wider text-black">
+                    Preparação do Destino
+                </div>
+
+                <h2 class="text-lg font-cinzel font-bold text-amber-200 mb-1 flex items-center gap-2">
+                    <i class="fa-solid fa-compass text-amber-400 text-sm"></i> Sintonize Sua Energia
+                </h2>
+                <p class="text-xs text-gray-400 mb-5">Preencha os campos para que o oráculo selecione a providência ideal.</p>
+
+                <form id="oracleForm" class="space-y-4" onsubmit="event.preventDefault();">
+                    <div>
+                        <label for="userName" class="block text-xs uppercase tracking-wider text-violet-200/80 font-semibold mb-1.5">
+                            Seu Nome ou Apelido
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-violet-400/60">
+                                <i class="fa-solid fa-user-astronaut"></i>
+                            </span>
+                            <input type="text" id="userName" placeholder="Ex: Viajante Cósmico" maxlength="24"
+                                class="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition text-sm">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="oracleCategory" class="block text-xs uppercase tracking-wider text-violet-200/80 font-semibold mb-1.5">
+                            Qual aspecto deseja consultar?
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-violet-400/60">
+                                <i class="fa-solid fa-feather-pointed"></i>
+                            </span>
+                            <select id="oracleCategory" class="w-full pl-10 pr-8 py-2.5 bg-[#170e30] border border-white/10 rounded-xl text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition text-sm appearance-none cursor-pointer">
+                                <option value="general">✨ Sorte Geral & Destino (运势)</option>
+                                <option value="love">💖 Amor & Relações (爱情)</option>
+                                <option value="career">🚀 Carreira & Prosperidade (事业)</option>
+                                <option value="peace">🌿 Paz Interior & Sabedoria (智慧)</option>
+                                <option value="creative">🎨 Criatividade & Novos Caminhos (灵感)</option>
+                            </select>
+                            <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-violet-400/60 text-xs">
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-violet-200/80 font-semibold mb-1.5">
+                            Sua Vibe no Momento
+                        </label>
+                        <div class="grid grid-cols-5 gap-2" id="vibeContainer">
+                            <button type="button" data-vibe="radiant" class="vibe-btn active p-2.5 rounded-xl border border-amber-400 bg-amber-500/20 text-center transition flex flex-col items-center">
+                                <span class="text-xl">✨</span>
+                                <span class="text-[10px] mt-1 text-gray-300">Radiante</span>
+                            </button>
+                            <button type="button" data-vibe="thoughtful" class="vibe-btn p-2.5 rounded-xl border border-white/10 bg-white/5 hover:border-violet-400 text-center transition flex flex-col items-center">
+                                <span class="text-xl">🤔</span>
+                                <span class="text-[10px] mt-1 text-gray-300">Pensativo</span>
+                            </button>
+                            <button type="button" data-vibe="anxious" class="vibe-btn p-2.5 rounded-xl border border-white/10 bg-white/5 hover:border-violet-400 text-center transition flex flex-col items-center">
+                                <span class="text-xl">⚡</span>
+                                <span class="text-[10px] mt-1 text-gray-300">Inquieto</span>
+                            </button>
+                            <button type="button" data-vibe="confident" class="vibe-btn p-2.5 rounded-xl border border-white/10 bg-white/5 hover:border-violet-400 text-center transition flex flex-col items-center">
+                                <span class="text-xl">🦁</span>
+                                <span class="text-[10px] mt-1 text-gray-300">Confiante</span>
+                            </button>
+                            <button type="button" data-vibe="tired" class="vibe-btn p-2.5 rounded-xl border border-white/10 bg-white/5 hover:border-violet-400 text-center transition flex flex-col items-center">
+                                <span class="text-xl">🌙</span>
+                                <span class="text-[10px] mt-1 text-gray-300">Cansado</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="secretNumber" class="block text-xs uppercase tracking-wider text-violet-200/80 font-semibold mb-1.5 flex justify-between">
+                            <span>Número Intuitivo (1 a 99)</span>
+                            <span class="text-gray-400 font-normal lowercase">(opcional)</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-violet-400/60">
+                                <i class="fa-solid fa-dice"></i>
+                            </span>
+                            <input type="number" id="secretNumber" min="1" max="99" placeholder="Ex: 8"
+                                class="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition text-sm">
+                        </div>
+                    </div>
+
+                    <button type="button" id="crackFromFormBtn" class="w-full mt-2 py-3 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-600 hover:from-amber-300 hover:to-amber-500 text-stone-950 font-bold font-cinzel text-sm uppercase tracking-wider shadow-lg shadow-amber-500/20 active:scale-[0.98] transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Revelar Fortuna Ancestral
+                    </button>
+                </form>
+            </section>
+
+            <!-- Right Column: Interactive Cookie Stage -->
+            <section class="lg:col-span-7 flex flex-col items-center justify-center relative min-h-[420px] order-1 lg:order-2">
+                <div class="glow-halo"></div>
+
+                <div id="clickHint" class="mb-4 text-xs tracking-widest uppercase font-semibold text-amber-300/80 flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-950/60 border border-violet-500/30 animate-pulse">
+                    <i class="fa-regular fa-hand-pointer"></i> Toque no biscoito ou confirme o ritual
+                </div>
+
+                <div class="relative flex items-center justify-center w-full max-w-[390px] h-[320px]">
+                    <!-- Cookie Pieces -->
+                    <div id="cookieWrapper" class="cookie-wrapper" role="button" aria-label="Partir biscoito da sorte" tabindex="0">
+                        <!-- Left Half -->
+                        <div class="cookie-part cookie-left">
+                            <svg viewBox="0 0 320 260" class="w-full h-full filter drop-shadow-[0_10px_15px_rgba(0,0,0,0.6)]">
+                                <defs>
+                                    <linearGradient id="cookieGradLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#FCD34D"/>
+                                        <stop offset="35%" stop-color="#F59E0B"/>
+                                        <stop offset="75%" stop-color="#D97706"/>
+                                        <stop offset="100%" stop-color="#92400E"/>
+                                    </linearGradient>
+                                    <linearGradient id="innerShadowLeft" x1="50%" y1="0%" x2="50%" y2="100%">
+                                        <stop offset="0%" stop-color="#78350F" stop-opacity="0.8"/>
+                                        <stop offset="100%" stop-color="#451A03" stop-opacity="0.95"/>
+                                    </linearGradient>
+                                </defs>
+                                <path d="M 160,40 C 100,20 40,65 30,125 C 20,185 70,225 125,235 C 150,240 160,205 160,130 Z" fill="url(#cookieGradLeft)" stroke="#B45309" stroke-width="2"/>
+                                <path d="M 160,55 C 120,70 95,120 120,195 C 142,190 157,170 160,130 Z" fill="url(#innerShadowLeft)"/>
+                                <path d="M 50,110 C 55,80 90,50 140,55" fill="none" stroke="#FDE68A" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+                                <circle cx="85" cy="140" r="2.5" fill="#78350F" opacity="0.4"/>
+                                <circle cx="110" cy="100" r="2" fill="#78350F" opacity="0.5"/>
+                                <circle cx="70" cy="170" r="3" fill="#78350F" opacity="0.3"/>
+                            </svg>
+                        </div>
+
+                        <!-- Right Half -->
+                        <div class="cookie-part cookie-right">
+                            <svg viewBox="0 0 320 260" class="w-full h-full filter drop-shadow-[0_10px_15px_rgba(0,0,0,0.6)]">
+                                <defs>
+                                    <linearGradient id="cookieGradRight" x1="100%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" stop-color="#FCD34D"/>
+                                        <stop offset="35%" stop-color="#F59E0B"/>
+                                        <stop offset="75%" stop-color="#D97706"/>
+                                        <stop offset="100%" stop-color="#78350F"/>
+                                    </linearGradient>
+                                    <linearGradient id="innerShadowRight" x1="50%" y1="0%" x2="50%" y2="100%">
+                                        <stop offset="0%" stop-color="#78350F" stop-opacity="0.8"/>
+                                        <stop offset="100%" stop-color="#451A03" stop-opacity="0.95"/>
+                                    </linearGradient>
+                                </defs>
+                                <path d="M 160,40 C 220,20 280,65 290,125 C 300,185 250,225 195,235 C 170,240 160,205 160,130 Z" fill="url(#cookieGradRight)" stroke="#B45309" stroke-width="2"/>
+                                <path d="M 160,55 C 200,70 225,120 200,195 C 178,190 163,170 160,130 Z" fill="url(#innerShadowRight)"/>
+                                <path d="M 270,110 C 265,80 230,50 180,55" fill="none" stroke="#FDE68A" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+                                <circle cx="235" cy="140" r="2.5" fill="#78350F" opacity="0.4"/>
+                                <circle cx="210" cy="100" r="2" fill="#78350F" opacity="0.5"/>
+                                <circle cx="250" cy="170" r="3" fill="#78350F" opacity="0.3"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Fortune Paper Card with Close 'X' and Chinese/Translation Mode -->
+                    <div id="fortunePaper" class="fortune-paper w-[94%] sm:w-[380px] bg-[#fffaf0] text-stone-900 px-6 py-5 rounded-xl shadow-2xl border-t-4 border-b-4 border-red-700 relative overflow-hidden flex flex-col justify-between">
+                        <!-- Red ribbon seal -->
+                        <div class="absolute top-0 right-7 w-8 h-8 pointer-events-none overflow-hidden">
+                            <div class="bg-red-700 text-[9px] text-amber-200 font-bold tracking-widest text-center py-0.5 w-14 absolute rotate-45 top-1.5 -right-3 shadow uppercase font-chinese">
+                                幸
+                            </div>
+                        </div>
+
+                        <!-- Close Button 'X' -->
+                        <button id="closeFortuneCardBtn" class="absolute top-2 right-2 w-7 h-7 rounded-full bg-stone-200 hover:bg-red-500 hover:text-white text-stone-600 flex items-center justify-center transition text-sm z-30" title="Fechar Bilhete">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+
+                        <div>
+                            <!-- Header info -->
+                            <div class="flex items-center justify-between border-b border-amber-200 pb-2 mb-3 pr-8">
+                                <span id="fortuneRecipient" class="text-[11px] font-bold uppercase tracking-wider text-red-800">
+                                    致: Viajante
+                                </span>
+                                <span id="fortuneTag" class="text-[10px] font-semibold text-amber-900 bg-amber-100 border border-amber-300/80 px-2 py-0.5 rounded-full">
+                                    吉 (Sorte)
+                                </span>
+                            </div>
+
+                            <!-- Text presentation container -->
+                            <div class="min-h-[110px] flex flex-col items-center justify-center text-center px-1">
+                                <!-- Chinese text container -->
+                                <div id="fortuneChineseContainer" class="fade-transition">
+                                    <p id="fortuneChineseText" class="font-chinese text-xl sm:text-2xl font-bold text-stone-900 tracking-wide leading-snug">
+                                        千里之行，始于足下。
+                                    </p>
+                                    <p id="fortunePinyinText" class="text-xs text-amber-800 font-mono mt-1">
+                                        Qiān lǐ zhī xíng, shǐ yú zú xià.
+                                    </p>
+                                </div>
+
+                                <!-- Portuguese translation container -->
+                                <div id="fortunePortugueseContainer" class="fade-transition hidden">
+                                    <p id="fortunePortugueseText" class="font-fortune italic text-base sm:text-lg text-stone-900 leading-relaxed">
+                                        "Uma jornada de mil milhas começa com um único passo."
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Translate Toggle Button -->
+                            <div class="flex justify-center mt-2 mb-3">
+                                <button id="translateToggleBtn" class="py-1 px-3 bg-red-50 hover:bg-red-100 border border-red-300 text-red-800 text-xs rounded-full font-medium transition flex items-center gap-1.5 shadow-sm">
+                                    <i class="fa-solid fa-language text-sm"></i>
+                                    <span id="translateBtnText">Traduzir para Português</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Card Footer -->
+                        <div class="pt-2 border-t border-amber-200 flex flex-col gap-2">
+                            <div class="flex justify-between items-center text-[11px] text-stone-600 font-mono">
+                                <span class="text-stone-500">幸运数字 (Números):</span>
+                                <span id="fortuneNumbers" class="font-bold tracking-wider text-red-900">08 • 16 • 24 • 38 • 42 • 59</span>
+                            </div>
+
+                            <!-- Action buttons -->
+                            <div class="flex items-center justify-between gap-2 pt-1">
+                                <button id="copyFortuneBtn" class="flex-1 py-1.5 px-2 bg-stone-100 hover:bg-stone-200 border border-stone-300 rounded text-stone-700 text-xs font-medium transition flex items-center justify-center gap-1.5" title="Copiar Bilhete">
+                                    <i class="fa-regular fa-copy"></i> Copiar
+                                </button>
+                                <button id="saveFortuneBtn" class="flex-1 py-1.5 px-2 bg-amber-600 hover:bg-amber-700 text-white rounded text-xs font-medium transition flex items-center justify-center gap-1.5 shadow-sm" title="Salvar no Histórico">
+                                    <i class="fa-solid fa-bookmark"></i> Salvar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post-break interactive controls -->
+                <div id="postBreakActions" class="mt-6 w-full max-w-sm flex flex-col sm:flex-row items-center justify-center gap-3 transition-all duration-300 opacity-0 pointer-events-none translate-y-3">
+                    <button id="resetCookieBtn" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-cinzel text-xs font-bold uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 active:scale-95">
+                        <i class="fa-solid fa-rotate-right"></i> Quebrar Outro Biscoito
+                    </button>
+                    <button id="closeTabBtn" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white/10 hover:bg-rose-500/20 hover:border-rose-500/40 border border-white/20 text-gray-200 hover:text-rose-200 font-cinzel text-xs font-bold uppercase tracking-wider transition flex items-center justify-center gap-2 backdrop-blur-md active:scale-95">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> Fechar e Reiniciar
+                    </button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- History Modal Drawer -->
+    <div id="historyModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300 flex justify-end">
+        <div class="w-full max-w-md bg-[#110926] border-l border-violet-800/40 h-full p-6 flex flex-col justify-between transform translate-x-full transition-transform duration-300" id="historyModalPanel">
+            <div>
+                <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-scroll text-amber-400"></i>
+                        <h3 class="font-cinzel font-bold text-lg text-amber-200">Livro dos Destinos (命运之书)</h3>
+                    </div>
+                    <button id="closeHistoryBtn" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <p class="text-xs text-gray-400 mb-4">Sabedorias e providências reveladas:</p>
+
+                <div id="historyList" class="space-y-3 overflow-y-auto max-h-[68vh] pr-1 custom-scroll">
+                    <div class="text-center text-gray-500 py-12 text-sm italic">
+                        Nenhuma profecia guardada ainda. Abra um biscoito para desvendar seus mistérios!
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-white/10 flex items-center justify-between">
+                <button id="clearHistoryBtn" class="text-xs text-red-400/80 hover:text-red-300 flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-trash-can"></i> Limpar histórico
+                </button>
+                <span id="historyCountText" class="text-xs text-gray-400">0 fortunas salvas</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toastNotification" class="fixed bottom-6 right-6 bg-stone-900 border border-amber-500/50 text-amber-200 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300 z-50 text-xs sm:text-sm">
+        <i class="fa-solid fa-circle-check text-amber-400 text-base" id="toastIcon"></i>
+        <span id="toastMessage">Texto copiado!</span>
+    </div>
+
+    <footer class="w-full text-center py-4 text-xs text-violet-300/40 z-10 border-t border-white/5">
+        天道酬勤 • O destino recompensa a virtude e a paciência.
+    </footer>
+
+    <script>
+        class SoundEffects {
+            constructor() {
+                this.enabled = true;
+                this.ctx = null;
+            }
+
+            initCtx() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) {
+                        this.ctx = new AudioCtx();
+                    }
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playCrack() {
+                if (!this.enabled) return;
+                try {
+                    this.initCtx();
+                    if (!this.ctx) return;
+                    const now = this.ctx.currentTime;
+
+                    const bufferSize = this.ctx.sampleRate * 0.12;
+                    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        data[i] = Math.random() * 2 - 1;
+                    }
+
+                    const noise = this.ctx.createBufferSource();
+                    noise.buffer = buffer;
+
+                    const noiseFilter = this.ctx.createBiquadFilter();
+                    noiseFilter.type = 'bandpass';
+                    noiseFilter.frequency.value = 1600;
+                    noiseFilter.Q.value = 3.0;
+
+                    const noiseGain = this.ctx.createGain();
+                    noiseGain.gain.setValueAtTime(0.8, now);
+                    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.11);
+
+                    noise.connect(noiseFilter);
+                    noiseFilter.connect(noiseGain);
+                    noiseGain.connect(this.ctx.destination);
+
+                    noise.start(now);
+
+                    const osc = this.ctx.createOscillator();
+                    const oscGain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(280, now);
+                    osc.frequency.exponentialRampToValueAtTime(50, now + 0.1);
+                    oscGain.gain.setValueAtTime(0.7, now);
+                    oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+                    osc.connect(oscGain);
+                    oscGain.connect(this.ctx.destination);
+
+                    osc.start(now);
+                    osc.stop(now + 0.12);
+
+                    this.playMysticChime(now + 0.08);
+                } catch (e) {
+                    console.warn("Audio exception", e);
+                }
+            }
+
+            playMysticChime(startTime) {
+                if (!this.ctx) return;
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, index) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    const t = startTime + (index * 0.06);
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, t);
+
+                    gain.gain.setValueAtTime(0.001, t);
+                    gain.gain.exponentialRampToValueAtTime(0.14, t + 0.04);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    osc.start(t);
+                    osc.stop(t + 1.0);
+                });
+            }
+        }
+
+        // Expanded bilingual fortune database (Hanzi, Pinyin, and Portuguese translation)
+        const fortuneDatabases = {
+            general: [
+                {
+                    zh: "千里之行，始于足下。",
+                    pinyin: "Qiān lǐ zhī xíng, shǐ yú zú xià.",
+                    pt: "Uma jornada de mil milhas começa com um único passo."
+                },
+                {
+                    zh: "顺其自然，随遇而安。",
+                    pinyin: "Shùn qí zì rán, suí yù ér ān.",
+                    pt: "Siga o fluxo natural da vida e encontre paz onde quer que esteja."
+                },
+                {
+                    zh: "心若向阳，无谓悲伤。",
+                    pinyin: "Xīn ruò xiàng yáng, wú wèi bēi shāng.",
+                    pt: "Se o coração se volta para a luz do sol, as tristezas perdem a força."
+                },
+                {
+                    zh: "山重水复疑无路，柳暗花明又一村。",
+                    pinyin: "Shān chóng shuǐ fù yí wú lù, liǔ àn huā míng yòu yì cūn.",
+                    pt: "Quando as montanhas e rios parecerem não ter saída, florescerá um novo vilarejo de esperança."
+                },
+                {
+                    zh: "积善成德，神明自得。",
+                    pinyin: "Jī shàn chéng dé, shén míng zì dé.",
+                    pt: "Acumule boas ações e virtudes; a serenidade interior e a fortuna virão por si mesmas."
+                },
+                {
+                    zh: "风雨过后，必有彩虹。",
+                    pinyin: "Fēng yǔ guò hòu, bì yǒu cǎi hóng.",
+                    pt: "Após a tormenta de ventos e chuvas, o arco-íris sempre ilumina os céus."
+                },
+                {
+                    zh: "福至心灵，吉祥如意。",
+                    pinyin: "Fú zhì xīn líng, jí xiáng rú yì.",
+                    pt: "Quando a boa sorte toca a mente desperta, todos os anseios se harmonizam."
+                }
+            ],
+            love: [
+                {
+                    zh: "有缘千里来相会，无缘对面不相逢。",
+                    pinyin: "Yǒu yuán qiān lǐ lái xiāng huì, wú yuán duì miàn bù xiāng féng.",
+                    pt: "Almas predestinadas se encontram mesmo a mil milhas de distância."
+                },
+                {
+                    zh: "愿得一人心，白首不相离。",
+                    pinyin: "Yuàn dé yī rén xīn, bái shǒu bù xiāng lí.",
+                    pt: "Conquistar um coração sincero e caminhar lado a lado até os cabelos de prata."
+                },
+                {
+                    zh: "身无彩凤双飞翼，心有灵犀一点通。",
+                    pinyin: "Shēn wú cǎi fèng shuāng fēi yì, xīn yǒu líng xī yì diǎn tōng.",
+                    pt: "Ainda sem asas para voar juntos, nossos corações comunicam-se em perfeita sintonia."
+                },
+                {
+                    zh: "爱出者爱返，福往者福来。",
+                    pinyin: "Ài chū zhě ài fǎn, fú wǎng zhě fú lái.",
+                    pt: "Aquele que irradia amor recebe amor de volta; quem semeia bênçãos colhe prosperidade."
+                },
+                {
+                    zh: "执子之手，与子偕老。",
+                    pinyin: "Zhí zǐ zhī shǒu, yǔ zǐ xié lǎo.",
+                    pt: "Segurar a sua mão com ternura e envelhecer ao seu lado em doce cumplicidade."
+                },
+                {
+                    zh: "真正的深情，藏在岁月的朝夕相伴中。",
+                    pinyin: "Zhēn zhèng de shēn qíng, cáng zài suì yuè de zhāo xī xiāng bàn zhōng.",
+                    pt: "O afeto mais sublime habita nos pequenos instantes de lealdade diária."
+                }
+            ],
+            career: [
+                {
+                    zh: "天道酬勤，力耕不欺。",
+                    pinyin: "Tiān dào chóu qín, lì gēng bù qī.",
+                    pt: "Os céus recompensam a dedicação diária; a terra cultivada nunca engana quem nela trabalha."
+                },
+                {
+                    zh: "长风破浪会有时，直挂云帆济沧海。",
+                    pinyin: "Cháng fēng pò làng huì yǒu shí, zhí guà yún fān jì cāng hǎi.",
+                    pt: "Haverá um vento favorável para cortar as ondas; icemos as velas e cruzar o imenso mar."
+                },
+                {
+                    zh: "宝剑锋从磨砺出，梅花香自苦寒来。",
+                    pinyin: "Bǎo jiàn fēng cóng mó lì chū, méi huā xiāng zì kǔ hán lái.",
+                    pt: "A espada ganha seu corte afiado na forja; a flor da ameixeira exala seu melhor perfume no rigor do inverno."
+                },
+                {
+                    zh: "不积跬步，无以至千里。",
+                    pinyin: "Bù jī kuǐ bù, wú yǐ zhì qiān lǐ.",
+                    pt: "Sem acumular pequenos passos contínuos, é impossível alcançar horizontes grandiosos."
+                },
+                {
+                    zh: "机遇只偏爱有准备的头脑。",
+                    pinyin: "Jī yù zhǐ piān ài yǒu zhǔn bèi de tóu nǎo.",
+                    pt: "A oportunidade dourada reserva sua simpatia para as mentes dedicadas e preparadas."
+                },
+                {
+                    zh: "精诚所至，金石为开。",
+                    pinyin: "Jīng chéng suǒ zhì, jīn shí wéi kāi.",
+                    pt: "Com empenho sincero e perseverança inabalável, até a rocha e o metal se abrem em caminho."
+                }
+            ],
+            peace: [
+                {
+                    zh: "宁静致远，淡泊明志。",
+                    pinyin: "Níng jìng zhì yuǎn, dàn bó míng zhì.",
+                    pt: "A serenidade profunda permite alcançar visões distantes; a sobriedade clareia o propósito."
+                },
+                {
+                    zh: "知足者常乐，随缘者自安。",
+                    pinyin: "Zhī zú zhě cháng lè, suí yuán zhě zì ān.",
+                    pt: "Aquele que compreende o contentamento é sempre alegre; quem aceita o destino vive em paz."
+                },
+                {
+                    zh: "心安即是归处。",
+                    pinyin: "Xīn ān jí shì guī chù.",
+                    pt: "Onde o coração repousa em calma, ali é o verdadeiro lar."
+                },
+                {
+                    zh: "大智若愚，大巧若拙。",
+                    pinyin: "Dà zhì ruò yú, dà qiǎo ruò zhuō.",
+                    pt: "A suprema sabedoria muitas vezes aparenta simplicidade ingênua."
+                },
+                {
+                    zh: "缓事宜急干，急事宜缓办。",
+                    pinyin: "Huǎn shì yí jí gàn, jí shì yí huǎn bàn.",
+                    pt: "Trate assuntos tranquilos com prontidão e encare situações urgentes com mente fria e compassada."
+                },
+                {
+                    zh: "身静则心宁，心宁则神智清。",
+                    pinyin: "Shēn jìng zé xīn níng, xīn níng zé shén zhì qīng.",
+                    pt: "Quando o corpo se acalma, a alma encontra harmonia e o intelecto resplandece lúcido."
+                }
+            ],
+            creative: [
+                {
+                    zh: "独辟蹊径，自成一家。",
+                    pinyin: "Dú pì xī jìng, zì chéng yī jiā.",
+                    pt: "Abra um caminho próprio nunca antes trilhado e faça florescer seu estilo original."
+                },
+                {
+                    zh: "妙手偶得，浑然天成。",
+                    pinyin: "Miào shǒu ǒu dé, hún rán tiān chéng.",
+                    pt: "O toque de genialidade surge como dádiva espontânea da natureza cósmica."
+                },
+                {
+                    zh: "纸上得来终觉浅，绝知此事要躬行。",
+                    pinyin: "Zhǐ shàng dé lái zhōng jué qiǎn, jué zhī cǐ shì yào gōng xíng.",
+                    pt: "O saber que jaz apenas nos livros é raso; a verdadeira mestria vem da prática ousada."
+                },
+                {
+                    zh: "意在笔先，神游物外。",
+                    pinyin: "Yì zài bǐ xiān, shén yóu wù wài.",
+                    pt: "Conceba a intenção límpida antes da primeira pincelada, deixando o espírito vagar livremente."
+                },
+                {
+                    zh: "打破常规，别开生面。",
+                    pinyin: "Dǎ pò cháng guī, bié kāi shēng miàn.",
+                    pt: "Rompa padrões antiquados e revele um panorama inédito de infinitas possibilidades."
+                },
+                {
+                    zh: "灵感宛若夜空流星，捕获于刹那直觉。",
+                    pinyin: "Líng gǎn wǎn ruò yè kōng liú xīng, bǔ huò yú chà nà zhí jué.",
+                    pt: "A inspiração cintila como estrela cadente: captura-se num lampejo de intuição pura."
+                }
+            ]
+        };
+
+        const moodKeywords = {
+            radiant: { tag: "光芒 • Radiante", extra: "Aproveite esta vibração iluminada para expandir seus horizontes." },
+            thoughtful: { tag: "深思 • Reflexão", extra: "Sua lucidez espiritual guiará a escolha mais sensata." },
+            anxious: { tag: "安神 • Calma", extra: "Acalme a respiração: o tempo se encarregará de arrumar cada peça." },
+            confident: { tag: "笃定 • Firmeza", extra: "Seu magnetismo pessoal e determinação abrirão portas fechadas." },
+            tired: { tag: "休养 • Repouso", extra: "Conceda-se merecido descanso para restaurar o brilho de seu espírito." }
+        };
+
+        let isCracked = false;
+        let isShowingTranslation = false;
+        let selectedVibe = "radiant";
+        let fortunesHistory = [];
+        let currentFortune = null;
+        const soundFx = new SoundEffects();
+
+        const cookieWrapper = document.getElementById('cookieWrapper');
+        const fortunePaper = document.getElementById('fortunePaper');
+        const closeFortuneCardBtn = document.getElementById('closeFortuneCardBtn');
+        const translateToggleBtn = document.getElementById('translateToggleBtn');
+        const translateBtnText = document.getElementById('translateBtnText');
+
+        const fortuneChineseContainer = document.getElementById('fortuneChineseContainer');
+        const fortuneChineseText = document.getElementById('fortuneChineseText');
+        const fortunePinyinText = document.getElementById('fortunePinyinText');
+
+        const fortunePortugueseContainer = document.getElementById('fortunePortugueseContainer');
+        const fortunePortugueseText = document.getElementById('fortunePortugueseText');
+
+        const fortuneRecipient = document.getElementById('fortuneRecipient');
+        const fortuneTag = document.getElementById('fortuneTag');
+        const fortuneNumbers = document.getElementById('fortuneNumbers');
+
+        const postBreakActions = document.getElementById('postBreakActions');
+        const resetCookieBtn = document.getElementById('resetCookieBtn');
+        const closeTabBtn = document.getElementById('closeTabBtn');
+        const clickHint = document.getElementById('clickHint');
+        const crackFromFormBtn = document.getElementById('crackFromFormBtn');
+
+        const copyFortuneBtn = document.getElementById('copyFortuneBtn');
+        const saveFortuneBtn = document.getElementById('saveFortuneBtn');
+
+        const toggleAudioBtn = document.getElementById('toggleAudioBtn');
+        const audioIcon = document.getElementById('audioIcon');
+        const audioStatus = document.getElementById('audioStatus');
+
+        const openHistoryBtn = document.getElementById('openHistoryBtn');
+        const closeHistoryBtn = document.getElementById('closeHistoryBtn');
+        const historyModal = document.getElementById('historyModal');
+        const historyModalPanel = document.getElementById('historyModalPanel');
+        const historyList = document.getElementById('historyList');
+        const historyBadge = document.getElementById('historyBadge');
+        const historyCountText = document.getElementById('historyCountText');
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+
+        const toastNotification = document.getElementById('toastNotification');
+        const toastMessage = document.getElementById('toastMessage');
+
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor(x, y, isExplosion = false) {
+                this.x = x;
+                this.y = y;
+                this.isExplosion = isExplosion;
+                if (isExplosion) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = Math.random() * 8 + 3;
+                    this.vx = Math.cos(angle) * speed;
+                    this.vy = Math.sin(angle) * speed;
+                    this.size = Math.random() * 4 + 2;
+                    this.alpha = 1;
+                    this.decay = Math.random() * 0.02 + 0.015;
+                    this.color = Math.random() > 0.4 ? '#F59E0B' : '#FDE68A';
+                } else {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.vx = (Math.random() - 0.5) * 0.4;
+                    this.vy = -Math.random() * 0.6 - 0.2;
+                    this.size = Math.random() * 2 + 0.5;
+                    this.alpha = Math.random() * 0.7 + 0.2;
+                    this.decay = 0;
+                    this.color = '#DDD6FE';
+                }
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.isExplosion) {
+                    this.vy += 0.12;
+                    this.alpha -= this.decay;
+                } else {
+                    if (this.y < -10) this.y = canvas.height + 10;
+                    if (this.x < -10) this.x = canvas.width + 10;
+                    if (this.x > canvas.width + 10) this.x = -10;
+                }
+            }
+
+            draw() {
+                if (this.alpha <= 0) return;
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, this.alpha);
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        for (let i = 0; i < 40; i++) {
+            particles.push(new Particle(0, 0, false));
+        }
+
+        function createExplosion(x, y, count = 45) {
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle(x, y, true));
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.update();
+                p.draw();
+                if (p.isExplosion && p.alpha <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        function generateLuckyNumbers(userNum) {
+            const numbers = new Set();
+            if (userNum && userNum >= 1 && userNum <= 99) {
+                numbers.add(parseInt(userNum, 10));
+            }
+            while (numbers.size < 6) {
+                const n = Math.floor(Math.random() * 60) + 1;
+                numbers.add(n);
+            }
+            return Array.from(numbers).sort((a, b) => a - b).map(n => n.toString().padStart(2, '0')).join(' • ');
+        }
+
+        function buildFortune() {
+            const rawName = document.getElementById('userName').value.trim();
+            const recipientName = rawName || "Viajante do Destino";
+            const category = document.getElementById('oracleCategory').value;
+            const moodData = moodKeywords[selectedVibe] || moodKeywords.radiant;
+            const secretNum = document.getElementById('secretNumber').value;
+
+            const categoryList = fortuneDatabases[category] || fortuneDatabases.general;
+            const chosen = categoryList[Math.floor(Math.random() * categoryList.length)];
+
+            const luckyString = generateLuckyNumbers(secretNum);
+
+            return {
+                id: Date.now(),
+                recipient: recipientName,
+                tag: moodData.tag,
+                chinese: chosen.zh,
+                pinyin: chosen.pinyin,
+                portuguese: `"${chosen.pt} ${moodData.extra}"`,
+                luckyNumbers: luckyString,
+                vibe: selectedVibe,
+                timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+            };
+        }
+
+        function crackCookie() {
+            if (isCracked) return;
+            isCracked = true;
+
+            currentFortune = buildFortune();
+
+            // Populate content
+            fortuneRecipient.textContent = `致: ${currentFortune.recipient}`;
+            fortuneTag.textContent = currentFortune.tag;
+            fortuneChineseText.textContent = currentFortune.chinese;
+            fortunePinyinText.textContent = currentFortune.pinyin;
+            fortunePortugueseText.textContent = currentFortune.portuguese;
+            fortuneNumbers.textContent = currentFortune.luckyNumbers;
+
+            // Start in Chinese mode by default
+            isShowingTranslation = false;
+            fortuneChineseContainer.classList.remove('hidden');
+            fortunePortugueseContainer.classList.add('hidden');
+            translateBtnText.textContent = "Traduzir para Português";
+
+            // Visual crack animations
+            cookieWrapper.classList.add('cracked');
+            fortunePaper.classList.add('revealed');
+            clickHint.classList.add('hidden');
+
+            // Show post break choices
+            postBreakActions.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-3');
+            postBreakActions.classList.add('opacity-100', 'translate-y-0');
+
+            soundFx.playCrack();
+
+            const rect = cookieWrapper.getBoundingClientRect();
+            createExplosion(rect.left + rect.width / 2, rect.top + rect.height / 2, 50);
+
+            addToHistory(currentFortune);
+        }
+
+        function closeFortuneSlip() {
+            // Closes the card popup while keeping the cookie cracked
+            fortunePaper.classList.remove('revealed');
+            showToast("Bilhete fechado. Você pode abrir outro biscoito abaixo.", "fa-envelope-open");
+        }
+
+        function toggleTranslation() {
+            isShowingTranslation = !isShowingTranslation;
+            if (isShowingTranslation) {
+                fortuneChineseContainer.classList.add('hidden');
+                fortunePortugueseContainer.classList.remove('hidden');
+                translateBtnText.textContent = "Ver em Chinês (原文)";
+                soundFx.playMysticChime(soundFx.ctx ? soundFx.ctx.currentTime : 0);
+            } else {
+                fortuneChineseContainer.classList.remove('hidden');
+                fortunePortugueseContainer.classList.add('hidden');
+                translateBtnText.textContent = "Traduzir para Português";
+            }
+        }
+
+        function resetCookie() {
+            isCracked = false;
+            cookieWrapper.classList.remove('cracked');
+            fortunePaper.classList.remove('revealed');
+
+            postBreakActions.classList.add('opacity-0', 'pointer-events-none', 'translate-y-3');
+            postBreakActions.classList.remove('opacity-100', 'translate-y-0');
+
+            clickHint.classList.remove('hidden');
+
+            soundFx.playMysticChime(soundFx.ctx ? soundFx.ctx.currentTime : 0);
+            showToast("Novo biscoito pronto para ser partido!", "fa-rotate-right");
+        }
+
+        function closeAndRestart() {
+            window.close();
+
+            setTimeout(() => {
+                isCracked = false;
+                cookieWrapper.classList.remove('cracked');
+                fortunePaper.classList.remove('revealed');
+                postBreakActions.classList.add('opacity-0', 'pointer-events-none', 'translate-y-3');
+                postBreakActions.classList.remove('opacity-100', 'translate-y-0');
+                clickHint.classList.remove('hidden');
+
+                document.getElementById('userName').value = '';
+                document.getElementById('oracleCategory').selectedIndex = 0;
+                document.getElementById('secretNumber').value = '';
+
+                vibeButtons.forEach(b => {
+                    b.classList.remove('border-amber-400', 'bg-amber-500/20');
+                    b.classList.add('border-white/10', 'bg-white/5');
+                });
+                vibeButtons[0].classList.remove('border-white/10', 'bg-white/5');
+                vibeButtons[0].classList.add('border-amber-400', 'bg-amber-500/20');
+                selectedVibe = 'radiant';
+
+                showToast("Sessão reiniciada! Aba pronta para fechar.", "fa-door-open");
+            }, 150);
+        }
+
+        function showToast(msg, icon = 'fa-circle-check') {
+            toastMessage.textContent = msg;
+            const iconElem = document.getElementById('toastIcon');
+            iconElem.className = `fa-solid ${icon} text-amber-400 text-base`;
+
+            toastNotification.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toastNotification.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        function copyCurrentFortune() {
+            if (!currentFortune) return;
+            const copyContent = `${currentFortune.recipient} • Fortuna do Dia\nChinês: ${currentFortune.chinese} (${currentFortune.pinyin})\nTradução: ${currentFortune.portuguese}\nNúmeros da Sorte: ${currentFortune.luckyNumbers}`;
+            
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = copyContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            try {
+                document.execCommand('copy');
+                showToast("Fortuna e tradução copiadas com sucesso!");
+            } catch (err) {
+                showToast("Erro ao copiar automaticamente.", "fa-triangle-exclamation");
+            }
+            document.body.removeChild(tempTextArea);
+        }
+
+        function addToHistory(fortune) {
+            fortunesHistory.unshift(fortune);
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const count = fortunesHistory.length;
+            historyCountText.textContent = `${count} ${count === 1 ? 'fortuna guardada' : 'fortunas guardadas'}`;
+            if (count > 0) {
+                historyBadge.textContent = count;
+                historyBadge.classList.remove('hidden');
+            } else {
+                historyBadge.classList.add('hidden');
+            }
+
+            if (count === 0) {
+                historyList.innerHTML = `
+                    <div class="text-center text-gray-500 py-12 text-sm italic">
+                        Nenhuma profecia guardada ainda. Abra um biscoito para começar seu diário cósmico!
+                    </div>
+                `;
+                return;
+            }
+
+            historyList.innerHTML = fortunesHistory.map(item => `
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-4 transition hover:border-amber-400/40">
+                    <div class="flex items-center justify-between text-xs text-amber-300 font-semibold mb-1">
+                        <span>致: ${item.recipient}</span>
+                        <span class="text-gray-400 font-normal text-[10px]">${item.timestamp}</span>
+                    </div>
+                    <p class="font-chinese text-base text-amber-100 font-bold my-1">${item.chinese}</p>
+                    <p class="text-xs text-amber-300/80 font-mono mb-2">${item.pinyin}</p>
+                    <p class="font-fortune text-xs text-gray-300 italic mb-2">${item.portuguese}</p>
+                    <div class="flex justify-between items-center text-[10px] text-gray-400 border-t border-white/5 pt-2">
+                        <span class="bg-violet-950 px-2 py-0.5 rounded text-amber-200">${item.tag}</span>
+                        <span class="font-mono text-amber-300">${item.luckyNumbers}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        cookieWrapper.addEventListener('click', crackCookie);
+        cookieWrapper.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                crackCookie();
+            }
+        });
+
+        closeFortuneCardBtn.addEventListener('click', closeFortuneSlip);
+        translateToggleBtn.addEventListener('click', toggleTranslation);
+        crackFromFormBtn.addEventListener('click', crackCookie);
+        resetCookieBtn.addEventListener('click', resetCookie);
+        closeTabBtn.addEventListener('click', closeAndRestart);
+        copyFortuneBtn.addEventListener('click', copyCurrentFortune);
+
+        saveFortuneBtn.addEventListener('click', () => {
+            showToast("Profecia fixada com sucesso!");
+        });
+
+        const vibeButtons = document.querySelectorAll('.vibe-btn');
+        vibeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                vibeButtons.forEach(b => {
+                    b.classList.remove('border-amber-400', 'bg-amber-500/20');
+                    b.classList.add('border-white/10', 'bg-white/5');
+                });
+                btn.classList.remove('border-white/10', 'bg-white/5');
+                btn.classList.add('border-amber-400', 'bg-amber-500/20');
+                selectedVibe = btn.getAttribute('data-vibe');
+            });
+        });
+
+        toggleAudioBtn.addEventListener('click', () => {
+            soundFx.enabled = !soundFx.enabled;
+            if (soundFx.enabled) {
+                audioIcon.className = "fa-solid fa-volume-high";
+                audioStatus.textContent = "Som Ativo";
+                toggleAudioBtn.classList.remove('opacity-50');
+            } else {
+                audioIcon.className = "fa-solid fa-volume-xmark";
+                audioStatus.textContent = "Mudo";
+                toggleAudioBtn.classList.add('opacity-50');
+            }
+        });
+
+        function toggleHistoryModal(open) {
+            if (open) {
+                historyModal.classList.remove('hidden');
+                setTimeout(() => {
+                    historyModal.classList.remove('opacity-0');
+                    historyModalPanel.classList.remove('translate-x-full');
+                }, 10);
+            } else {
+                historyModal.classList.add('opacity-0');
+                historyModalPanel.classList.add('translate-x-full');
+                setTimeout(() => {
+                    historyModal.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        openHistoryBtn.addEventListener('click', () => toggleHistoryModal(true));
+        closeHistoryBtn.addEventListener('click', () => toggleHistoryModal(false));
+        historyModal.addEventListener('click', (e) => {
+            if (e.target === historyModal) toggleHistoryModal(false);
+        });
+
+        clearHistoryBtn.addEventListener('click', () => {
+            fortunesHistory = [];
+            renderHistory();
+            showToast("Histórico esvaziado com sucesso.", "fa-trash-can");
+        });
+    </script>
+</body>
+</html>
